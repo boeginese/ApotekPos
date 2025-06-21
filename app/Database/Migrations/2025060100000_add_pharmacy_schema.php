@@ -1,4 +1,4 @@
-```php
+<?php
   defined('BASEPATH') OR exit('No direct script access allowed');
 
   class Migration_Add_pharmacy_schema extends CI_Migration {
