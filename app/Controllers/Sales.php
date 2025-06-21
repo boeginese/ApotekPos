@@ -66,8 +66,8 @@ class Sales extends Secure_Controller
     }
 
     /**
-public function validatePrescription()
-{
+    public function validatePrescription()
+    {
     $prescription_number = $this->input->post('prescription_number');
     // Panggil API e-Resep (contoh: Farmalkes Kemenkes)
     $api_url = "https://api.farmalkes.kemkes.go.id/validate?no_resep=" . urlencode($prescription_number);
