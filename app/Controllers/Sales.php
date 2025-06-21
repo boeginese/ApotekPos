@@ -66,6 +66,40 @@ class Sales extends Secure_Controller
     }
 
     /**
+public function validatePrescription()
+{
+    $prescription_number = $this->input->post('prescription_number');
+    // Panggil API e-Resep (contoh: Farmalkes Kemenkes)
+    $api_url = "https://api.farmalkes.kemkes.go.id/validate?no_resep=" . urlencode($prescription_number);
+    // Gunakan API key yang disimpan di config
+    $api_key = $this->config->item('farmalkes_api_key');
+    
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $api_url);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array('Authorization: Bearer ' . $api_key));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $response = curl_exec($ch);
+    curl_close($ch);
+    
+    $result = json_decode($response, true);
+    
+    if ($result['status'] == 'valid') {
+        echo json_encode([
+            'success' => true,
+            'patient_name' => $result['patient_name'],
+            'doctor_name' => $result['doctor_name'],
+            'issue_date' => $result['issue_date'],
+            'expiry_date' => $result['expiry_date'],
+            'status' => $result['status']
+        ]);
+    } else {
+        echo json_encode([
+            'success' => false,
+            'message' => 'Resep tidak valid atau tidak ditemukan.'
+        ]);
+    }
+}
+
      * @return void
      */
     public function getIndex(): void
