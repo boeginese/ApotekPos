@@ -65,7 +65,6 @@ class Sales extends Secure_Controller
         $this->employee = model(Employee::class);
     }
 
-    /**
     public function validatePrescription()
     {
     $prescription_number = $this->input->post('prescription_number');
