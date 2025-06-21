@@ -1,5 +1,8 @@
 <?php
-  defined('BASEPATH') OR exit('No direct script access allowed');
+  namespace App\Database\Migrations;
+
+use CodeIgniter\Database\Migration;
+use Config\Database;
 
   class Migration_Add_pharmacy_schema extends CI_Migration {
 
