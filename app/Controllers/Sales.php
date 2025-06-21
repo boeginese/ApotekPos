@@ -66,37 +66,54 @@ class Sales extends Secure_Controller
     }
 
     public function validatePrescription()
-    {
-    $prescription_number = $this->input->post('prescription_number');
-    // Panggil API e-Resep (contoh: Farmalkes Kemenkes)
-    $api_url = "https://api.farmalkes.kemkes.go.id/validate?no_resep=" . urlencode($prescription_number);
-    // Gunakan API key yang disimpan di config
-    $api_key = $this->config->item('farmalkes_api_key');
+{
+    $prescription_no = $this->input->post('prescription_no');
     
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $api_url);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array('Authorization: Bearer ' . $api_key));
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    $response = curl_exec($ch);
-    curl_close($ch);
+    // Panggil API Farmalkes Kemenkes
+    $api_url = "https://api.farmalkes.kemkes.go.id/validate?no_resep=".$prescription_no;
+    $api_key = config_item('farmalkes_api_key');
     
-    $result = json_decode($response, true);
+    $client = \Config\Services::curlrequest();
+    $response = $client->setHeader('Authorization', 'Bearer '.$api_key)
+                       ->get($api_url);
     
-    if ($result['status'] == 'valid') {
-        echo json_encode([
-            'success' => true,
+    if ($response->getStatusCode() == 200) {
+        $result = json_decode($response->getBody(), true);
+        
+        // Simpan info resep di session
+        $this->session->set_userdata('prescription_info', [
+            'number' => $prescription_no,
             'patient_name' => $result['patient_name'],
             'doctor_name' => $result['doctor_name'],
             'issue_date' => $result['issue_date'],
-            'expiry_date' => $result['expiry_date'],
             'status' => $result['status']
+        ]);
+        
+        echo json_encode([
+            'success' => true,
+            'data' => $result
         ]);
     } else {
         echo json_encode([
             'success' => false,
-            'message' => 'Resep tidak valid atau tidak ditemukan.'
+            'message' => 'Gagal validasi resep'
         ]);
     }
+}
+
+public function checkInteraction()
+{
+    $new_item = $this->input->post('new_item');
+    $existing_items = $this->input->post('existing_items');
+    
+    // Panggil API interaksi obat
+    $this->load->library('drug_interaction');
+    $result = $this->drug_interaction->check([...$existing_items, $new_item]);
+    
+    echo json_encode([
+        'has_interaction' => !empty($result),
+        'warning' => $result ? $result[0] : ''
+    ]);
 }
 
      * @return void
