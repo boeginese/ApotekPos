@@ -70,6 +70,16 @@ echo view('partial/print_receipt', ['print_after_sale', $print_after_sale, 'sele
             <th style="width: 15%; text-align: right;"><?= lang('Sales.total') ?></th>
         </tr>
 
+<?php if (!empty($prescription_info)): ?>
+    <div class="prescription-details">
+        <h4>Resep Dokter</h4>
+        <p>No. Resep: <?= esc($prescription_info['prescription_number']) ?></p>
+        <p>Pasien: <?= esc($prescription_info['patient_name']) ?></p>
+        <p>Dokter: <?= esc($prescription_info['doctor_name']) ?></p>
+        <p>Tanggal: <?= esc($prescription_info['issue_date']) ?></p>
+    </div>
+<?php endif; ?>
+
         <?php foreach (array_reverse($cart, true) as $line => $item) { ?>
             <tr>
                 <td><?= esc($item['name'] . ' ' . $item['attribute_values']) ?></td>
